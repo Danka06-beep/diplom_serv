@@ -3,6 +3,8 @@ package com.kuzmin.route
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.dto.AuthenticationRequestDto
+import com.kuzmin.dto.UserResponseDto
+import com.kuzmin.model.UserModel
 import com.kuzmin.service.FCMService
 import com.kuzmin.service.FileService
 import com.kuzmin.service.UserService
@@ -29,7 +31,10 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     call.respondText("Server working", ContentType.Text.Plain)
                 }
                 authenticate {
-
+                    get("/me") {
+                        val me = call.authentication.principal<UserModel>()
+                        call.respond(UserResponseDto.fromModel(me!!))
+                    }
                 }
                 post("/authentication") {
                     val input = call.receive<AuthenticationRequestDto>()
