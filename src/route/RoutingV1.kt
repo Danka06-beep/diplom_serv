@@ -2,14 +2,15 @@ package com.kuzmin.route
 
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.Repository.UserRepository
-import com.kuzmin.dto.AuthenticationRequestDto
-import com.kuzmin.dto.UserResponseDto
+import com.kuzmin.dto.*
+import com.kuzmin.model.RepostModel
 import com.kuzmin.model.UserModel
 import com.kuzmin.service.FCMService
 import com.kuzmin.service.FileService
 import com.kuzmin.service.UserService
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.request.*
@@ -35,6 +36,74 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val me = call.authentication.principal<UserModel>()
                         call.respond(UserResponseDto.fromModel(me!!))
                     }
+                    get{
+                       val response = repo.getAll().map{ PostResponseDto.fromModel(it)}
+                           call.respond(response)
+
+                    }
+                    get("/{id}"){
+                        val id = call.parameters["id"]?.toLongOrNull()?: throw ParameterConversionException("id", "Long")
+                        val model = repo.getById(id) ?: throw NotFoundException()
+                        val response = PostResponseDto.fromModel(model)
+                        call.respond(response)
+                    }
+                    get("/posts") {
+                        val response = repo.getAll()
+                        call.respond(response)
+                    }
+
+                    post("/new") {
+                        val request = call.receive<PostResponseDto>()
+                        print(request.toString())
+                        val me = call.authentication.principal<UserModel>()
+                        val response = repo.newPost(request.txt.toString(), request.attachment, me?.username)
+                            ?: throw NotFoundException()
+                        call.respond(response)
+                    }
+
+                    post ("/media") {
+                        val multipart = call.receiveMultipart()
+                        val response = fileService.save(multipart)
+                        call.respond(response)
+                    }
+
+                    post("/repost") {
+                        val request = call.receive<RepostResponseDto>()
+                        val me = call.authentication.principal<UserModel>()
+                        if (me != null) {
+                            val model =
+                                RepostModel(
+                                    id = request.id,
+                                    authorRepost = me.username,
+                                    txtRepost = request.txtRepost
+                                )
+                            val response = repo.repost(model) ?: throw NotFoundException()
+                            call.respond(response)
+                        }
+                    }
+                    post("/{id}/like"){
+                        val id = call.parameters["id"]?.toLongOrNull()
+                            ?: throw ParameterConversionException("id", "Long")
+                        val me = call.authentication.principal<UserModel>()
+                        val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
+                        if (me != null && response.author != null) {
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Ваш пост лайкнул ${me.username}")
+                        }
+                        print(response)
+                        call.respond(response)
+                    }
+                    delete("/{id}/likes"){
+                        val id = call.parameters["id"]?.toLongOrNull()?: throw ParameterConversionException("id","Long")
+                        val me = call.authentication.principal<UserModel>()
+                        val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
+                        call.respond(response)
+                    }
+                    post("posts/old") {
+                        val id = call.receive<Long>()
+                        val response = repo.getOld(id)
+                        call.respond(response)
+                    }
+
                 }
                 post("/authentication") {
                     val input = call.receive<AuthenticationRequestDto>()
@@ -48,7 +117,17 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     val response = userService.addUser(input.username, input.password)
                     call.respond(response)
                 }
+                post("/tokenDevice"){
+                    println("tokenDevice")
+                    val input = call.receive<TokenDto>()
+                    val me = repos.getById(input.id)
+                    val response = repos.addIdTokenDivivce(input.id,input.tokenDevice)
+                    fcmService.send(-1,input.tokenDevice, "Добро пожаловать ${me?.username}")
+                    call.respond(response)
+
+                }
+                }
+
             }
         }
     }
-}
