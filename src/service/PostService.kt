@@ -19,4 +19,5 @@ class PostService(val repo: PostRepository) {
         val model = PostModel(id = input.id, author = input.author, txt = input.txt)
         return PostResponseDto.fromModel(repo.save(model))
     }
+
 }

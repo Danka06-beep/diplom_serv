@@ -3,6 +3,7 @@ package com.kuzmin.route
 import com.kuzmin.Repository.PostRepository
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.dto.*
+import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.RepostModel
 import com.kuzmin.model.UserModel
 import com.kuzmin.service.FCMService
@@ -98,10 +99,9 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
                         call.respond(response)
                     }
-                    post("posts/old") {
-                        val id = call.receive<Long>()
-                        val response = repo.getOld(id)
-                        call.respond(response)
+                    post("/changeImage"){
+                        val request = call.receive<AttachmentModel>()
+                        val me = call.authentication.principal<UserModel>()
                     }
 
                 }
@@ -124,6 +124,11 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     val response = repos.addIdTokenDivivce(input.id,input.tokenDevice)
                     fcmService.send(-1,input.tokenDevice, "Добро пожаловать ${me?.username}")
                     call.respond(response)
+                }
+
+                post("/changePassword") {
+                    val request = call.receive<PasswordChangeRequestDto>()
+                    val me = call.authentication.principal<UserModel>()
 
                 }
                 }

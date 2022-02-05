@@ -23,8 +23,8 @@ data class PostModel (
     val postIsLike: ArrayList<Long> = ArrayList(),
     val repost:PostModel?=null,
     val attachment: AttachmentModel?= null
-
 )
+
 enum class PostType {
     Reposts,
     YoutubeVideo,

@@ -3,7 +3,7 @@ package com.kuzmin.dto
 data class PostRequestDto (
     val id: Long,
     val author: String,
-    val txt: String? = null,
+    val txt: String,
     var like: Boolean = false,
     var liketxt: Int = 0,
     val dateRepost: Long? = null,

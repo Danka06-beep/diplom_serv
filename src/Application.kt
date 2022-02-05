@@ -6,10 +6,7 @@ import com.kuzmin.Repository.PostRepository
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.Repository.UserRepositoryInMemoryWithMutexImpl
 import com.kuzmin.route.RoutingV1
-import com.kuzmin.service.FCMService
-import com.kuzmin.service.FileService
-import com.kuzmin.service.JWTTokenService
-import com.kuzmin.service.UserService
+import com.kuzmin.service.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -54,6 +51,7 @@ fun Application.module(testing: Boolean = false) {
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
+        bind<PostService>() with eagerSingleton { PostService(instance()) }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
