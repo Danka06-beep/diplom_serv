@@ -55,4 +55,13 @@ class UserService(
     suspend fun IdTokenDivivce(id: Long?, tokenDevice: String): Boolean {
         return (repo.addIdTokenDivivce(id,tokenDevice))
     }
+    suspend fun changePassword(old: String, new: String, id: Long) {
+
+        val model = repo.getById(id) ?: throw NotFoundException()
+        if (!passwordEncoder.matches(old, model.password)) {
+            throw PasswordChangeException("Неверный пароль")
+        }
+        val copy = model.copy(password = passwordEncoder.encode(new))
+        repo.save(copy)
+    }
 }

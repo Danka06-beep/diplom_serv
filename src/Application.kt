@@ -3,6 +3,7 @@ package com.kuzmin
 import com.kuzmin.Exception.PasswordChangeException
 import com.kuzmin.Exception.UseraddException
 import com.kuzmin.Repository.PostRepository
+import com.kuzmin.Repository.PostRepositoryInMemoryWithMutexImpl
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.Repository.UserRepositoryInMemoryWithMutexImpl
 import com.kuzmin.route.RoutingV1
@@ -52,6 +53,7 @@ fun Application.module(testing: Boolean = false) {
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<PostService>() with eagerSingleton { PostService(instance()) }
+        bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
         bind<UserService>() with eagerSingleton {
             UserService(instance(), instance(), instance()).apply {
