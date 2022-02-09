@@ -1,5 +1,6 @@
 package com.kuzmin.Repository
 
+import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.UserModel
 
 interface UserRepository {
@@ -13,4 +14,7 @@ interface UserRepository {
     suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): String
     fun  findTokenDevice(username: String):String
     suspend fun addIdTokenDivivce(id : Long?, tokenDevice: String): Boolean
+    suspend fun ChangeImg(id: Long, attachmentModel: AttachmentModel): Boolean
+    suspend fun ToReadOnly(id: Long?)
+    suspend fun NotReadOnly(id: Long?)
 }

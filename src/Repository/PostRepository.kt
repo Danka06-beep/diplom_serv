@@ -3,14 +3,15 @@ package com.kuzmin.Repository
 import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.PostModel
 import com.kuzmin.model.RepostModel
+import com.kuzmin.model.UserModel
 
 interface PostRepository {
     suspend fun getAll(): List<PostModel>
     suspend fun getById(id: Long): PostModel?
     suspend fun save(item: PostModel): PostModel
     suspend fun removeById(id: Long)
-    suspend fun likeById(id: Long, userId:Long?): PostModel?
-    suspend fun dislikeById(id: Long,userId:Long?): PostModel?
+    suspend fun likeById(id: Long, user: Long?): PostModel?
+    suspend fun dislikeById(id: Long, user: Long?): PostModel?
     suspend fun new(txt: String?, author: String?): List<PostModel>
     suspend fun repost(item: RepostModel): PostModel?
     suspend fun getfive():List<PostModel>

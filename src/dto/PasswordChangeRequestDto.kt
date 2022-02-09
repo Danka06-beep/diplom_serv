@@ -1,4 +1,4 @@
 package com.kuzmin.dto
 
-data class PasswordChangeRequestDto(val password: String, val repeatpassword: String) {
+data class PasswordChangeRequestDto(val old: String, val new: String) {
 }

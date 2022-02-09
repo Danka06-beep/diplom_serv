@@ -3,10 +3,7 @@ package com.kuzmin.Repository
 import com.google.gson.Gson
 import com.kuzmin.Exception.ActionProhibitedException
 import com.kuzmin.PostData
-import com.kuzmin.model.AttachmentModel
-import com.kuzmin.model.PostModel
-import com.kuzmin.model.PostType
-import com.kuzmin.model.RepostModel
+import com.kuzmin.model.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
@@ -52,14 +49,14 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
         items.removeIf { it.id == id }
     }
 
-    override suspend fun likeById(id: Long, userId: Long?): PostModel? =
+    override suspend fun likeById(id: Long, user: Long?): PostModel? =
         mutex.withLock {
             val index = items.indexOfFirst { it.id == id }
             if (index < 0) {
                 return@withLock null
             }
             val post = items[index]
-            if (post.postIsLike.contains(userId)) {
+            if (post.postLike.contains(user)) {
                 return throw ActionProhibitedException("действие запрешено")
             }
             val newPost = post.copy(likeTxt = post.likeTxt.inc(), like = true)
@@ -70,22 +67,22 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
         }
 
 
-    override suspend fun dislikeById(id: Long, userId: Long?): PostModel? =
-    mutex.withLock {
-        val index = items.indexOfFirst { it.id == id }
-        if (index < 0) {
-            return@withLock null
+    override suspend fun dislikeById(id: Long, user: Long?): PostModel? =
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            if (index < 0) {
+                return@withLock null
+            }
+            val post = items[index]
+            if (!post.postLike.contains(user)) {
+                return throw ActionProhibitedException("действие запрешено")
+            }
+            val newPost = post.copy(likeTxt = post.dislikeTxt.dec(), dislike = false)
+            items[index] = newPost
+            File("post.json").writeText(Gson().toJson(items))
+            items
+            newPost
         }
-        val post = items[index]
-        if (!post.postIsLike.contains(userId)) {
-            return throw ActionProhibitedException("действие запрешено")
-        }
-        val newPost = post.copy(likeTxt = post.likeTxt.dec(), like = false)
-        items[index] = newPost
-        File("post.json").writeText(Gson().toJson(items))
-        items
-        newPost
-    }
 
 
     override suspend fun new(txt: String?, author: String?): List<PostModel> =

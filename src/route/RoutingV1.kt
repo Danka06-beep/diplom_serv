@@ -88,28 +88,32 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
                         if (me != null && response.author != null) {
-                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Ваш пост лайкнул ${me.username}")
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам лайкнул  ${me.username}")
                         }
                         print(response)
                         call.respond(response)
                     }
-                    delete("/{id}/likes"){
+                    delete("/{id}/dislike"){
                         val id = call.parameters["id"]?.toLongOrNull()?: throw ParameterConversionException("id","Long")
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
+                        if (me != null && response.author != null) {
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам поставил дизлайк ${me.username}")
+                        }
                         call.respond(response)
                     }
                     post("/changeImage"){
                         val request = call.receive<AttachmentModel>()
                         val me = call.authentication.principal<UserModel>()
+
                     }
 
                     post("/changePassword") {
                         val input = call.receive<PasswordChangeRequestDto>()
                         val me = call.authentication.principal<UserModel>()
                         if (me != null) {
-                            val response = userService.changePassword(input.password, input.repeatpassword, me.id)
-                            call.respond("Пароль успешно изменён")
+                            val response = userService.changePassword(input.old, input.new, me.id)
+                            call.respond("Пароль изменён")
                         }
                     }
                 }

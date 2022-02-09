@@ -2,6 +2,7 @@ package com.kuzmin.Repository
 
 import com.google.gson.Gson
 import com.kuzmin.UserData
+import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.UserModel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -105,4 +106,37 @@ class UserRepositoryInMemoryWithMutexImpl: UserRepository {
             }
         }
     }
+
+    override suspend fun ChangeImg(id: Long, attachmentModel: AttachmentModel): Boolean {
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            val user = items[index]
+            val copy = user.copy(attachment = attachmentModel)
+            items[index] = copy
+            File("user.json").writeText(Gson().toJson(items))
+        }
+        return true
+    }
+
+    override suspend fun ToReadOnly(id: Long?) {
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            val user = items[index]
+            val copy = user.copy(readOnly = true)
+            items[index] = copy
+            File("user.json").writeText(Gson().toJson(items))
+        }
+    }
+
+    override suspend fun NotReadOnly(id: Long?) {
+        mutex.withLock {
+            val index = items.indexOfFirst { it.id == id }
+            val user = items[index]
+            val copy = user.copy(readOnly = false)
+            items[index] = copy
+            File("user.json").writeText(Gson().toJson(items))
+        }
+    }
+
 }
+
