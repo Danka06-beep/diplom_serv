@@ -64,7 +64,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
 
                     post ("/media") {
                         val multipart = call.receiveMultipart()
-                        val response = fileService.save(multipart)
+                        val response = fileService.save(multipart,users = false)
                         call.respond(response)
                     }
 
@@ -103,11 +103,10 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         call.respond(response)
                     }
                     post("/changeImage"){
-                        val request = call.receive<AttachmentModel>()
-                        val me = call.authentication.principal<UserModel>()
-
+                        val multipart = call.receiveMultipart()
+                        val response = fileService.save(multipart,users = true)
+                        call.respond(response)
                     }
-
                     post("/changePassword") {
                         val input = call.receive<PasswordChangeRequestDto>()
                         val me = call.authentication.principal<UserModel>()

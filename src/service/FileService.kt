@@ -11,7 +11,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 
-class FileService (private val uploadPath: String) {
+class FileService (private val uploadPath: String, val uploadUserPath: String) {
     private val images = listOf(ContentType.Image.JPEG, ContentType.Image.PNG)
 
     init {
@@ -19,9 +19,13 @@ class FileService (private val uploadPath: String) {
         if (Files.notExists(Paths.get(uploadPath))) {
             Files.createDirectory(Paths.get(uploadPath))
         }
+        println(Paths.get(uploadUserPath).toAbsolutePath().toString())
+        if (Files.notExists(Paths.get(uploadUserPath))) {
+            Files.createDirectory(Paths.get(uploadUserPath))
+        }
     }
 
-    suspend fun save(multipart: MultiPartData): MediaResponseDto {
+    suspend fun save(multipart: MultiPartData, users: Boolean = false): MediaResponseDto {
         var response: MediaResponseDto? = null
         multipart.forEachPart { part ->
             when (part) {
@@ -38,11 +42,22 @@ class FileService (private val uploadPath: String) {
                         }
                         val name = "${UUID.randomUUID()}.$ext"
                         val path = Paths.get(uploadPath, name)
-                        part.streamProvider().use {
-                            withContext(Dispatchers.IO) {
-                                Files.copy(it, path)
+                        val pathUser = Paths.get(uploadUserPath, name)
+
+                        if(users == true){
+                            part.streamProvider().use {
+                                withContext(Dispatchers.IO) {
+                                    Files.copy(it, pathUser)
+                                }
+                            }
+                        } else {
+                            part.streamProvider().use {
+                                withContext(Dispatchers.IO) {
+                                    Files.copy(it, path)
+                                }
                             }
                         }
+
                         part.dispose()
                         response = MediaResponseDto(name, MediaType.IMAGE)
                         return@forEachPart

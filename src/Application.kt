@@ -41,6 +41,7 @@ fun Application.module(testing: Boolean = false) {
     }
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
+        constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload_user.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
         constant(tag = "fcm-password") with (environment.config.propertyOrNull("nscraft.fcm.password")?.getString()
             ?: throw ConfigurationException("FCM Password is not specified"))
         constant(tag = "fcm-salt") with (environment.config.propertyOrNull("nscraft.fcm.salt")?.getString()
@@ -50,7 +51,7 @@ fun Application.module(testing: Boolean = false) {
             ?: throw ConfigurationException("FCM JSON Path is not specified"))
         bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(),instance(tag = "upload-dir"),instance(),instance()) }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
-        bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
+        bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir"),instance(tag = "upload_user-dir")) }
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<PostService>() with eagerSingleton { PostService(instance()) }
         bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
