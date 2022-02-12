@@ -20,7 +20,7 @@ import io.ktor.routing.*
 import org.kodein.di.generic.instance
 import org.kodein.di.ktor.kodein
 
-class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService, private val fcmService: FCMService) {
+class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService, private val fcmService: FCMService,private val staticPathUs: String) {
     fun setup(configuration: Routing) {
         with(configuration) {
             val repo by kodein().instance<PostRepository>()
@@ -28,6 +28,9 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
             route("/api/v1") {
                 static("/static") {
                     files(staticPath)
+                }
+                static("/staticUs") {
+                    files(staticPathUs)
                 }
                 get("/") {
                     call.respondText("Server working", ContentType.Text.Plain)
