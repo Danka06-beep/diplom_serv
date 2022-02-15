@@ -140,6 +140,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     val input = call.receive<AuthenticationRequestDto>()
                     println(input)
                     val response = userService.addUser(input.username, input.password)
+                    println(response)
                     call.respond(response)
                 }
                 post("/tokenDevice"){

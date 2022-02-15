@@ -28,17 +28,30 @@ class UserService(
         return AuthenticationResponseDto(token)
     }
     suspend fun addUser(username: String, password: String): AuthenticationResponseDto {
-        val model = UserModel(
-            id = repo.getSizeListUser(),
-            username = username,
-            password = passwordEncoder.encode(password),
-            token = tokenService.generate(repo.getSizeListUser().toLong())
-        )
-        val checkingIsUser = repo.addUser(model)
-        if (checkingIsUser) {
-            val token = tokenService.generate(model.id)
-            return AuthenticationResponseDto(token)
+        println("adduser")
+        println("id ${repo.getSizeListUser()}")
+        println("username $username")
+        println("password ${passwordEncoder.encode(password)}")
+        println("token ${tokenService.generate(repo.getSizeListUser().toLong())}")
+        try {
+            val  model = UserModel(
+                id = repo.getSizeListUser(),
+                username = username,
+                password = passwordEncoder.encode(password),
+                token = tokenService.generate(repo.getSizeListUser().toLong())
+            )
+
+            println("model $model")
+            println("model $model")
+            val checkingIsUser = repo.addUser(model)
+            if (checkingIsUser) {
+                val token = tokenService.generate(model.id)
+                return AuthenticationResponseDto(token)
+            }
+        } catch (e: Exception){
+            print("exception $e")
         }
+
         return throw UseraddException("Такой логин уже зарегистрирован")
     }
     suspend fun addTokenDevice(tokenUser: String, tokenDevice: String): UserResponeDto {
