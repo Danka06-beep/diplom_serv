@@ -41,7 +41,7 @@ fun Application.module(testing: Boolean = false) {
     }
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
-        constant(tag = "upload-dir") with (environment.config.propertyOrNull("nscraft.upload_user.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
+        constant(tag = "upload_user-dir") with (environment.config.propertyOrNull("nscraft.upload_user.dir")?.getString() ?: throw ConfigurationException("Upload dir"))
         constant(tag = "fcm-password") with (environment.config.propertyOrNull("nscraft.fcm.password")?.getString()
             ?: throw ConfigurationException("FCM Password is not specified"))
         constant(tag = "fcm-salt") with (environment.config.propertyOrNull("nscraft.fcm.salt")?.getString()

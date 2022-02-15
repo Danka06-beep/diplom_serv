@@ -19,6 +19,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.generic.instance
 import org.kodein.di.ktor.kodein
+import java.io.File
 
 class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService, private val fcmService: FCMService,private val staticPathUs: String) {
     fun setup(configuration: Routing) {
@@ -70,6 +71,11 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = fileService.save(multipart,users = false)
                         call.respond(response)
                     }
+                    post("/mediaUser"){
+                        val multipart = call.receiveMultipart()
+                        val response = fileService.save(multipart,users = true)
+                        call.respond(response)
+                    }
 
                     post("/repost") {
                         val request = call.receive<RepostResponseDto>()
@@ -106,9 +112,13 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         call.respond(response)
                     }
                     post("/changeImage"){
-                        val multipart = call.receiveMultipart()
-                        val response = fileService.save(multipart,users = true)
-                        call.respond(response)
+                        val request = call.receive<AttachmentModel>()
+                        val me = call.authentication.principal<UserModel>()
+                        if (me != null) {
+                            val response = repos.ChangeImg(me.id, request)
+                            call.respond(response)
+
+                        }
                     }
                     post("/changePassword") {
                         val input = call.receive<PasswordChangeRequestDto>()
