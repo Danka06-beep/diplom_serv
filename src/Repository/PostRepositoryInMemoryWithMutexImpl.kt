@@ -77,7 +77,7 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
             if (!post.postLike.contains(user)) {
                 return throw ActionProhibitedException("действие запрешено")
             }
-            val newPost = post.copy(likeTxt = post.dislikeTxt.dec(), dislike = false)
+            val newPost = post.copy(dislikeTxt = post.dislikeTxt.inc(), dislike = true)
             items[index] = newPost
             File("post.json").writeText(Gson().toJson(items))
             items

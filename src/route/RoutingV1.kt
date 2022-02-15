@@ -138,6 +138,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                 }
                 post("/registration") {
                     val input = call.receive<AuthenticationRequestDto>()
+                    println(input)
                     val response = userService.addUser(input.username, input.password)
                     call.respond(response)
                 }
