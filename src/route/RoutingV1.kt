@@ -102,13 +102,15 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         print(response)
                         call.respond(response)
                     }
-                    delete("/{id}/dislike"){
-                        val id = call.parameters["id"]?.toLongOrNull()?: throw ParameterConversionException("id","Long")
+                    post("/{id}/dislike"){
+                        val id = call.parameters["id"]?.toLongOrNull()
+                            ?: throw ParameterConversionException("id","Long")
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
                         if (me != null && response.author != null) {
                             fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам поставил дизлайк ${me.username}")
                         }
+                        print(response)
                         call.respond(response)
                     }
                     post("/changeImage"){

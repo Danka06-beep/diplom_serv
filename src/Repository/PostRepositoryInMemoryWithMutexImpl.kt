@@ -74,7 +74,7 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
                 return@withLock null
             }
             val post = items[index]
-            if (!post.postLike.contains(user)) {
+            if (post.postLike.contains(user)) {
                 return throw ActionProhibitedException("действие запрешено")
             }
             val newPost = post.copy(dislikeTxt = post.dislikeTxt.inc(), dislike = true)
