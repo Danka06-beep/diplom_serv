@@ -1,8 +1,10 @@
 package com.kuzmin.dto
 
+import com.kuzmin.model.UserModel
+
 data class PostRequestDto (
     val id: Long,
-    val author: String,
+    val author: UserModel?,
     val date: Long = 0,
     val txt: String,
     var like: Boolean = false,

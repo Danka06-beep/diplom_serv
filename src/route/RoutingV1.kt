@@ -4,6 +4,7 @@ import com.kuzmin.Repository.PostRepository
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.dto.*
 import com.kuzmin.model.AttachmentModel
+import com.kuzmin.model.AttachmentType
 import com.kuzmin.model.RepostModel
 import com.kuzmin.model.UserModel
 import com.kuzmin.service.FCMService
@@ -19,7 +20,6 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import org.kodein.di.generic.instance
 import org.kodein.di.ktor.kodein
-import java.io.File
 
 class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService, private val fcmService: FCMService,private val staticPathUs: String) {
     fun setup(configuration: Routing) {
@@ -61,7 +61,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val request = call.receive<PostResponseDto>()
                         print(request.toString())
                         val me = call.authentication.principal<UserModel>()
-                        val response = repo.newPost(request.txt.toString(), request.attachment, me?.username)
+                        val response = repo.newPost(request.txt.toString(), request.attachment, request.author)
                             ?: throw NotFoundException()
                         call.respond(response)
                     }
@@ -73,7 +73,9 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                     }
                     post("/mediaUser"){
                         val multipart = call.receiveMultipart()
+                        val me = call.authentication.principal<UserModel>()
                         val response = fileService.save(multipart,users = true)
+                        userService.editAvatar(me, AttachmentModel(response.id,AttachmentType.IMAGE))
                         call.respond(response)
                     }
 
@@ -84,7 +86,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             val model =
                                 RepostModel(
                                     id = request.id,
-                                    authorRepost = me.username,
+                                    authorRepost = request.authorRepost,
                                     txtRepost = request.txtRepost
                                 )
                             val response = repo.repost(model) ?: throw NotFoundException()
@@ -97,7 +99,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
                         if (me != null && response.author != null) {
-                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам лайкнул  ${me.username}")
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author.username), "Вам лайкнул  ${me.username}")
                         }
                         print(response)
                         call.respond(response)
@@ -108,10 +110,18 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
                         if (me != null && response.author != null) {
-                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам поставил дизлайк ${me.username}")
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author.username), "Вам поставил дизлайк ${me.username}")
                         }
                         print(response)
                         call.respond(response)
+                    }
+                    post("/changePassword") {
+                        val input = call.receive<PasswordChangeRequestDto>()
+                        val me = call.authentication.principal<UserModel>()
+                        if (me != null) {
+                            val response = userService.changePassword(input.old, input.new, me.id)
+                            call.respond("Пароль изменён")
+                        }
                     }
                     post("/changeImage"){
                         val request = call.receive<AttachmentModel>()
@@ -120,14 +130,6 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             val response = repos.ChangeImg(me.id, request)
                             call.respond(response)
 
-                        }
-                    }
-                    post("/changePassword") {
-                        val input = call.receive<PasswordChangeRequestDto>()
-                        val me = call.authentication.principal<UserModel>()
-                        if (me != null) {
-                            val response = userService.changePassword(input.old, input.new, me.id)
-                            call.respond("Пароль изменён")
                         }
                     }
                 }

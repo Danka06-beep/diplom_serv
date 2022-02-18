@@ -138,5 +138,15 @@ class UserRepositoryInMemoryWithMutexImpl: UserRepository {
         }
     }
 
+    override suspend fun editAvatar(user: UserModel?, imageUser: AttachmentModel) {
+       mutex.withLock {
+           val  index = items.indexOfFirst { it.id == user?.id }
+              val userModel = items[index]
+              val copy = userModel.copy(attachment = imageUser)
+              items[index] = copy
+              File("user.json").writeText(Gson().toJson(items))
+       }
+    }
+
 }
 

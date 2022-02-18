@@ -1,14 +1,18 @@
 package com.kuzmin.service
 
+import com.google.gson.Gson
 import com.kuzmin.Exception.PasswordChangeException
 import com.kuzmin.Exception.UseraddException
 import com.kuzmin.Repository.UserRepository
 import com.kuzmin.dto.AuthenticationRequestDto
 import com.kuzmin.dto.AuthenticationResponseDto
 import com.kuzmin.dto.UserResponeDto
+import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.UserModel
 import io.ktor.features.*
+import kotlinx.coroutines.sync.withLock
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.io.File
 
 class UserService(
     private val repo: UserRepository,
@@ -77,4 +81,9 @@ class UserService(
         val copy = model.copy(password = passwordEncoder.encode(new))
         repo.save(copy)
     }
+
+    suspend fun editAvatar(user: UserModel?, imageUser: AttachmentModel) {
+      return repo.editAvatar(user, imageUser)
+    }
+
 }

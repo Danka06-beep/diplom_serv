@@ -3,10 +3,11 @@ package com.kuzmin.dto
 import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.PostModel
 import com.kuzmin.model.PostType
+import com.kuzmin.model.UserModel
 
 data class PostResponseDto (
     val id: Long = 0,
-    val author: String? = null,
+    val author: UserModel?,
     val data: Long = 0,
     val txt: String? = null,
     var like: Boolean = false,

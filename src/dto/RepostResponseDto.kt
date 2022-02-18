@@ -1,9 +1,10 @@
 package com.kuzmin.dto
 
 import com.kuzmin.model.RepostModel
+import com.kuzmin.model.UserModel
 
 data class RepostResponseDto ( val id: Long = 0,
-                          val authorRepost: String? = null,
+                          val authorRepost: UserModel? = null,
                           val txtRepost: String? = null) {
     companion object {
         fun fromRepostModel(model: RepostModel) = RepostResponseDto(

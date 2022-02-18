@@ -1,8 +1,8 @@
 package com.kuzmin.model
 
-data class RepostModel (
+data class RepostModel(
     val id: Long = 0,
-    val authorRepost: String? = null,
+    val authorRepost: UserModel?,
     val txtRepost: String? = null,
 ){
 

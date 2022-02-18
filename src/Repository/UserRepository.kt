@@ -17,4 +17,5 @@ interface UserRepository {
     suspend fun ChangeImg(id: Long, attachmentModel: AttachmentModel): Boolean
     suspend fun ToReadOnly(id: Long?)
     suspend fun NotReadOnly(id: Long?)
+    suspend fun editAvatar(user: UserModel?, imageUser: AttachmentModel)
 }
