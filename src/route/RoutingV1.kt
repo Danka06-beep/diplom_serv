@@ -61,7 +61,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val request = call.receive<PostResponseDto>()
                         print(request.toString())
                         val me = call.authentication.principal<UserModel>()
-                        val response = repo.newPost(request.txt.toString(), request.attachment, request.author)
+                        val response = repo.newPost(request.txt.toString(), request.attachment, me?.username)
                             ?: throw NotFoundException()
                         call.respond(response)
                     }
@@ -71,6 +71,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val response = fileService.save(multipart,users = false)
                         call.respond(response)
                     }
+
                     post("/mediaUser"){
                         val multipart = call.receiveMultipart()
                         val me = call.authentication.principal<UserModel>()
@@ -86,7 +87,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                             val model =
                                 RepostModel(
                                     id = request.id,
-                                    authorRepost = request.authorRepost,
+                                    authorRepost = me.username,
                                     txtRepost = request.txtRepost
                                 )
                             val response = repo.repost(model) ?: throw NotFoundException()
@@ -99,7 +100,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.likeById(id,me?.id) ?: throw NotFoundException()
                         if (me != null && response.author != null) {
-                            fcmService.send(id,userService.findTokenDeviceUser(response.author.username), "Вам лайкнул  ${me.username}")
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам лайкнул  ${me.username}")
                         }
                         print(response)
                         call.respond(response)
@@ -110,7 +111,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val me = call.authentication.principal<UserModel>()
                         val response = repo.dislikeById(id,me?.id)?: throw  NotFoundException()
                         if (me != null && response.author != null) {
-                            fcmService.send(id,userService.findTokenDeviceUser(response.author.username), "Вам поставил дизлайк ${me.username}")
+                            fcmService.send(id,userService.findTokenDeviceUser(response.author), "Вам поставил дизлайк ${me.username}")
                         }
                         print(response)
                         call.respond(response)

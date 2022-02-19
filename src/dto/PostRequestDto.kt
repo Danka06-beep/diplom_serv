@@ -4,7 +4,7 @@ import com.kuzmin.model.UserModel
 
 data class PostRequestDto (
     val id: Long,
-    val author: UserModel?,
+    val author: String? = null,
     val date: Long = 0,
     val txt: String,
     var like: Boolean = false,

@@ -85,7 +85,7 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
         }
 
 
-    override suspend fun new(txt: String?, author: UserModel?): List<PostModel> =
+    override suspend fun new(txt: String?, author: String?): List<PostModel> =
     mutex.withLock {
         val new = PostModel(id = items.size.toLong(), txt = txt, author = author)
         items.add(new)
@@ -125,7 +125,7 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
         }
 
 
-    override suspend fun newPost(txt: String?, attachment: AttachmentModel?, autorName: UserModel?): List<PostModel> =
+    override suspend fun newPost(txt: String?, attachment: AttachmentModel?, autorName: String?): List<PostModel> =
         mutex.withLock {
             val newPost = PostModel(id = items.size.toLong(), txt = txt, attachment = attachment,author = autorName)
             items.add(newPost)

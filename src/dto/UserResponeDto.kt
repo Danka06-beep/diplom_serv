@@ -2,7 +2,7 @@ package com.kuzmin.dto
 
 import com.kuzmin.model.UserModel
 
-class UserResponeDto (username : String) {
+class UserResponeDto (username : String?) {
     val username = username
 
     companion object {

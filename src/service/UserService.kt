@@ -1,6 +1,5 @@
 package com.kuzmin.service
 
-import com.google.gson.Gson
 import com.kuzmin.Exception.PasswordChangeException
 import com.kuzmin.Exception.UseraddException
 import com.kuzmin.Repository.UserRepository
@@ -10,9 +9,7 @@ import com.kuzmin.dto.UserResponeDto
 import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.UserModel
 import io.ktor.features.*
-import kotlinx.coroutines.sync.withLock
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.io.File
 
 class UserService(
     private val repo: UserRepository,

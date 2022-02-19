@@ -2,7 +2,7 @@ package com.kuzmin.model
 
 data class PostModel (
     val id: Long = 0,
-    val author: UserModel?,
+    val author: String?,
     val data: Long = 0,
     val txt: String? = null,
     var like: Boolean = false,
