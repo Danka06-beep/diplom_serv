@@ -49,11 +49,11 @@ fun Application.module(testing: Boolean = false) {
 
         constant(tag = "fcm-path") with (environment.config.propertyOrNull("nscraft.fcm.path")?.getString()
             ?: throw ConfigurationException("FCM JSON Path is not specified"))
-        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(),instance(tag = "upload-dir"),instance(),instance(),instance(tag = "upload_user-dir")) }
+        bind<RoutingV1>() with eagerSingleton { RoutingV1(instance(),instance(tag = "upload-dir"),instance(),instance(),instance(tag = "upload_user-dir"),instance()) }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir"),instance(tag = "upload_user-dir")) }
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
-        bind<PostService>() with eagerSingleton { PostService(instance()) }
+        bind<PostService>() with eagerSingleton { PostService(instance(),instance()) }
         bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithMutexImpl() }
         bind<UserService>() with eagerSingleton {

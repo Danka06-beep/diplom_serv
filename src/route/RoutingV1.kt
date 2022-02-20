@@ -9,6 +9,7 @@ import com.kuzmin.model.RepostModel
 import com.kuzmin.model.UserModel
 import com.kuzmin.service.FCMService
 import com.kuzmin.service.FileService
+import com.kuzmin.service.PostService
 import com.kuzmin.service.UserService
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -21,7 +22,12 @@ import io.ktor.routing.*
 import org.kodein.di.generic.instance
 import org.kodein.di.ktor.kodein
 
-class RoutingV1(val userService : UserService, private val staticPath: String, private val fileService: FileService, private val fcmService: FCMService,private val staticPathUs: String) {
+class RoutingV1(val userService : UserService,
+                private val staticPath: String,
+                private val fileService: FileService,
+                private val fcmService: FCMService,
+                private val staticPathUs: String,
+                private val postService: PostService) {
     fun setup(configuration: Routing) {
         with(configuration) {
             val repo by kodein().instance<PostRepository>()
@@ -53,7 +59,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         call.respond(response)
                     }
                     get("/posts") {
-                        val response = repo.getAll()
+                        val response = postService.getAll()
                         call.respond(response)
                     }
 
@@ -61,7 +67,7 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val request = call.receive<PostResponseDto>()
                         print(request.toString())
                         val me = call.authentication.principal<UserModel>()
-                        val response = repo.newPost(request.txt.toString(), request.attachment, me?.username)
+                        val response = repo.newPost(request.txt.toString(), request.attachment, me)
                             ?: throw NotFoundException()
                         call.respond(response)
                     }
@@ -120,8 +126,8 @@ class RoutingV1(val userService : UserService, private val staticPath: String, p
                         val input = call.receive<PasswordChangeRequestDto>()
                         val me = call.authentication.principal<UserModel>()
                         if (me != null) {
-                            val response = userService.changePassword(input.old, input.new, me.id)
-                            call.respond("Пароль изменён")
+                            val response = userService.changePassword(me.id, input)
+                            call.respond(response)
                         }
                     }
                     post("/changeImage"){

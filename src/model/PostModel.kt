@@ -22,7 +22,8 @@ data class PostModel (
     val autorId: Long = -1,
     val postLike: ArrayList<LikeAndDislikeModel> = ArrayList(),
     val repost:PostModel?=null,
-    val attachment: AttachmentModel?= null
+    val attachment: AttachmentModel?= null,
+    val authorAttachment: UserModel? = null
 )
 
 enum class PostType {

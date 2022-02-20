@@ -125,9 +125,9 @@ class PostRepositoryInMemoryWithMutexImpl: PostRepository {
         }
 
 
-    override suspend fun newPost(txt: String?, attachment: AttachmentModel?, autorName: String?): List<PostModel> =
+    override suspend fun newPost(txt: String?, attachment: AttachmentModel?, autorName: UserModel?): List<PostModel> =
         mutex.withLock {
-            val newPost = PostModel(id = items.size.toLong(), txt = txt, attachment = attachment,author = autorName)
+            val newPost = PostModel(id = items.size.toLong(), txt = txt, attachment = attachment,author = autorName!!.username, autorId = autorName.id)
             items.add(newPost)
             File("post.json").writeText(Gson().toJson(items))
             items

@@ -6,10 +6,14 @@ import com.kuzmin.dto.PostResponseDto
 import com.kuzmin.model.PostModel
 import io.ktor.features.*
 
-class PostService(val repo: PostRepository) {
-    suspend fun getAll(): List<PostResponseDto>{
-        return repo.getAll().map{PostResponseDto.fromModel(it) }
-    }
+class PostService(val repo: PostRepository, val userService: UserService) {
+    suspend fun getAll(): List<PostModel>{
+       return repo.getAll().map {
+           it.copy(authorAttachment = userService.getModelById(it.autorId))
+       }
+
+        }
+
     suspend fun getById(id: Long): PostResponseDto {
         val model = repo.getById(id) ?: throw NotFoundException()
         return PostResponseDto.fromModel(model)

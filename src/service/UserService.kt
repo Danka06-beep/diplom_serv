@@ -3,9 +3,7 @@ package com.kuzmin.service
 import com.kuzmin.Exception.PasswordChangeException
 import com.kuzmin.Exception.UseraddException
 import com.kuzmin.Repository.UserRepository
-import com.kuzmin.dto.AuthenticationRequestDto
-import com.kuzmin.dto.AuthenticationResponseDto
-import com.kuzmin.dto.UserResponeDto
+import com.kuzmin.dto.*
 import com.kuzmin.model.AttachmentModel
 import com.kuzmin.model.UserModel
 import io.ktor.features.*
@@ -69,14 +67,15 @@ class UserService(
     suspend fun IdTokenDivivce(id: Long?, tokenDevice: String): Boolean {
         return (repo.addIdTokenDivivce(id,tokenDevice))
     }
-    suspend fun changePassword(old: String, new: String, id: Long) {
+    suspend fun changePassword(id: Long, input: PasswordChangeRequestDto): UserDto {
 
         val model = repo.getById(id) ?: throw NotFoundException()
-        if (!passwordEncoder.matches(old, model.password)) {
+        if (!passwordEncoder.matches(input.old, model.password)) {
             throw PasswordChangeException("Неверный пароль")
         }
-        val copy = model.copy(password = passwordEncoder.encode(new))
+        val copy = model.copy(password = passwordEncoder.encode(input.new))
         repo.save(copy)
+        return UserDto.fromUserDto(copy)
     }
 
     suspend fun editAvatar(user: UserModel?, imageUser: AttachmentModel) {
